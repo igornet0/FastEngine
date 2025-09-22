@@ -4,6 +4,9 @@
 #include "FastEngine/Audio/AudioManager.h"
 #include "FastEngine/Input/InputManager.h"
 #include "FastEngine/Platform/Platform.h"
+#include "FastEngine/Platform/Timer.h"
+#include "FastEngine/Systems/RenderSystem.h"
+#include <iostream>
 
 namespace FastEngine {
     Engine::Engine() 
@@ -28,8 +31,9 @@ namespace FastEngine {
         m_renderer = std::make_unique<Renderer>();
         m_audioManager = std::make_unique<AudioManager>();
         m_inputManager = std::make_unique<InputManager>();
+        m_renderSystem = std::make_unique<RenderSystem>(m_world.get(), m_renderer.get());
         
-        // Инициализация рендерера
+        // Инициализация рендерера (после создания окна)
         if (!m_renderer->Initialize(width, height)) {
             return false;
         }
@@ -44,11 +48,20 @@ namespace FastEngine {
             return false;
         }
         
+        // Инициализация системы рендеринга
+        if (m_renderSystem) {
+            m_renderSystem->Initialize();
+        }
+        
         m_running = true;
         return true;
     }
     
     void Engine::Shutdown() {
+        if (m_renderSystem) {
+            m_renderSystem->Cleanup();
+        }
+        
         if (m_audioManager) {
             m_audioManager->Shutdown();
         }
@@ -67,6 +80,7 @@ namespace FastEngine {
         m_renderer.reset();
         m_audioManager.reset();
         m_inputManager.reset();
+        m_renderSystem.reset();
         
         m_running = false;
     }
@@ -97,6 +111,9 @@ namespace FastEngine {
             
             // Отрисовка
             Render();
+            
+            // Показываем результат
+            Platform::GetInstance().Present();
         }
     }
     
@@ -108,16 +125,18 @@ namespace FastEngine {
         if (m_inputManager) {
             m_inputManager->Update(deltaTime);
         }
+        
+        if (m_renderSystem) {
+            m_renderSystem->Update(deltaTime);
+        }
     }
     
     void Engine::Render() {
-        if (m_renderer) {
-            m_renderer->Clear();
-            
-            // Здесь будет логика отрисовки мира
-            // m_renderer->RenderWorld(m_world.get());
-            
-            m_renderer->Present();
-        }
+        // Отрисовка теперь обрабатывается в RenderSystem::Update()
+        // Этот метод оставлен для совместимости
+    }
+    
+    std::string Engine::GetPlatformName() const {
+        return Platform::GetInstance().GetPlatformName();
     }
 }

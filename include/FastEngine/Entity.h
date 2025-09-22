@@ -43,6 +43,12 @@ namespace FastEngine {
             m_components.erase(std::type_index(typeid(T)));
         }
         
+        // Проверка наличия нескольких компонентов
+        template<typename... ComponentTypes>
+        bool HasComponents() const {
+            return (HasComponent<ComponentTypes>() && ...);
+        }
+        
         // Получение всех компонентов
         const std::unordered_map<std::type_index, std::unique_ptr<Component>>& GetComponents() const {
             return m_components;

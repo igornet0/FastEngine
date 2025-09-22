@@ -1,6 +1,12 @@
 #include "FastEngine/World.h"
 #include "FastEngine/Entity.h"
 #include "FastEngine/System.h"
+#include "FastEngine/Components/Sprite.h"
+#include "FastEngine/Components/Transform.h"
+#include "FastEngine/Components/Animator.h"
+#include "FastEngine/Components/RigidBody.h"
+#include "FastEngine/Components/Collider.h"
+#include <algorithm>
 
 namespace FastEngine {
     World::World() = default;
@@ -38,4 +44,22 @@ namespace FastEngine {
             }
         }
     }
+    
+    // Реализация шаблона GetEntitiesWithComponents
+    template<typename... ComponentTypes>
+    std::vector<Entity*> World::GetEntitiesWithComponents() {
+        std::vector<Entity*> result;
+        for (auto& entity : m_entities) {
+            if (entity->HasComponents<ComponentTypes...>()) {
+                result.push_back(entity.get());
+            }
+        }
+        return result;
+    }
+    
+    // Явная инстанциация для часто используемых типов
+    template std::vector<Entity*> World::GetEntitiesWithComponents<Sprite, Transform>();
+    template std::vector<Entity*> World::GetEntitiesWithComponents<Animator>();
+    template std::vector<Entity*> World::GetEntitiesWithComponents<RigidBody>();
+    template std::vector<Entity*> World::GetEntitiesWithComponents<Collider>();
 }

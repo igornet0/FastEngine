@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Обертка для Project Simulator CLI
+# Упрощает использование командной строки
+
+# Определяем путь к исполняемому файлу
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+CLI_EXECUTABLE="$PROJECT_ROOT/build/desktop/bin/SimulatorCLI"
+
+# Проверяем, что CLI собран
+if [ ! -f "$CLI_EXECUTABLE" ]; then
+    echo "❌ SimulatorCLI not found. Building now..."
+    cd "$PROJECT_ROOT"
+    ./scripts/build_desktop.sh
+    if [ $? -ne 0 ]; then
+        echo "❌ Failed to build SimulatorCLI"
+        exit 1
+    fi
+fi
+
+# Запускаем CLI с переданными аргументами
+"$CLI_EXECUTABLE" "$@"
+

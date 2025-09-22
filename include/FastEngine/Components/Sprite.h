@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include "FastEngine/Component.h"
 #include <string>
 #include <glm/glm.hpp>
 
@@ -11,6 +11,7 @@ namespace FastEngine {
     public:
         Sprite(const std::string& texturePath);
         Sprite(Texture* texture);
+        ~Sprite();
         
         // Текстура
         Texture* GetTexture() const { return m_texture; }

@@ -1,0 +1,42 @@
+{
+    "engine": {
+        "name": "FastEngine",
+        "version": "1.0.0",
+        "description": "Cross-platform 2D game engine for Android, iOS, and Desktop"
+    },
+    "platforms": {
+        "android": {
+            "min_api": 21,
+            "target_api": 33,
+            "ndk_version": "r25",
+            "architecture": ["arm64-v8a", "armeabi-v7a"]
+        },
+        "ios": {
+            "min_version": "12.0",
+            "target_version": "16.0",
+            "architectures": ["arm64", "x86_64"]
+        },
+        "desktop": {
+            "opengl_version": "3.3",
+            "platforms": ["Windows", "Linux", "macOS"]
+        }
+    },
+    "dependencies": {
+        "required": {
+            "cmake": "3.16+",
+            "cpp_standard": "17",
+            "opengl": "3.3+",
+            "sdl2": "2.0.10+"
+        },
+        "optional": {
+            "openal": "1.1+",
+            "freetype": "2.10+",
+            "box2d": "2.4+"
+        }
+    },
+    "build": {
+        "output_dir": "build",
+        "assets_dir": "assets",
+        "examples_dir": "examples"
+    }
+}

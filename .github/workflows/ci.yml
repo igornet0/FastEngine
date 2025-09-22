@@ -1,0 +1,231 @@
+name: FastEngine CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Debug, Release]
+        exclude:
+          - os: windows-latest
+            build_type: Debug
+          - os: macos-latest
+            build_type: Debug
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake ninja-build
+        sudo apt-get install -y libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+        sudo apt-get install -y libasound2-dev libpulse-dev
+        sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+
+    - name: Install dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install cmake ninja sdl2 sdl2_image sdl2_mixer sdl2_ttf
+
+    - name: Install dependencies (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install cmake ninja
+        choco install sdl2 sdl2-image sdl2-mixer sdl2-ttf
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_CXX_STANDARD=17
+
+    - name: Build
+      run: |
+        cmake --build build --config ${{ matrix.build_type }} --parallel
+
+    - name: Test
+      run: |
+        cd build
+        ctest --output-on-failure --parallel
+
+    - name: Run examples
+      run: |
+        cd build
+        ./examples/SimpleTest
+        ./examples/CompleteTest
+        ./examples/ComponentTest
+
+  export-platforms:
+    needs: build-and-test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [Windows, Linux, macOS, Android, iOS, Web]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build
+          sudo apt-get install -y libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+          sudo apt-get install -y libasound2-dev libpulse-dev
+          sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+          brew install cmake ninja sdl2 sdl2_image sdl2_mixer sdl2_ttf
+        elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+          choco install cmake ninja
+          choco install sdl2 sdl2-image sdl2-mixer sdl2-ttf
+        fi
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17
+
+    - name: Build
+      run: |
+        cmake --build build --config Release --parallel
+
+    - name: Export for platform
+      run: |
+        cd build
+        ./examples/ExportTest ${{ matrix.platform }} ./exports/${{ matrix.platform }}
+
+    - name: Upload exports
+      uses: actions/upload-artifact@v4
+      with:
+        name: exports-${{ matrix.platform }}-${{ matrix.os }}
+        path: build/exports/${{ matrix.platform }}/
+
+  performance-test:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake ninja-build
+        sudo apt-get install -y libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+        sudo apt-get install -y libasound2-dev libpulse-dev
+        sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17
+
+    - name: Build
+      run: |
+        cmake --build build --config Release --parallel
+
+    - name: Run performance tests
+      run: |
+        cd build
+        ./examples/PerformanceTest --duration 60 --output performance_report.json
+
+    - name: Upload performance report
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-report
+        path: build/performance_report.json
+
+  security-scan:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Run security scan
+      run: |
+        # Install security scanning tools
+        sudo apt-get update
+        sudo apt-get install -y cppcheck clang-tidy
+
+        # Run static analysis
+        cppcheck --enable=all --inconclusive --std=c++17 src/ include/ --xml 2> cppcheck-report.xml
+
+        # Run clang-tidy
+        find src/ include/ -name "*.cpp" -o -name "*.h" | xargs clang-tidy -p build/
+
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: cppcheck-report.xml
+
+  deploy:
+    needs: [build-and-test, export-platforms]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Download all exports
+      uses: actions/download-artifact@v4
+      with:
+        path: exports/
+
+    - name: Create release package
+      run: |
+        mkdir -p release
+        cp -r exports/* release/
+        
+        # Create platform-specific packages
+        for platform in Windows Linux macOS Android iOS Web; do
+          if [ -d "exports/$platform" ]; then
+            tar -czf "release/FastEngine-$platform.tar.gz" -C exports $platform
+            zip -r "release/FastEngine-$platform.zip" exports/$platform
+          fi
+        done
+
+    - name: Upload to release
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-packages
+        path: release/
+
+  notify:
+    needs: [build-and-test, export-platforms, performance-test, security-scan]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+    - name: Notify on success
+      if: needs.build-and-test.result == 'success'
+      run: |
+        echo "✅ Build and test completed successfully"
+        # Here you would send notifications to Slack, Discord, etc.
+
+    - name: Notify on failure
+      if: needs.build-and-test.result == 'failure'
+      run: |
+        echo "❌ Build and test failed"
+        # Here you would send failure notifications
+

@@ -1,0 +1,152 @@
+# Расширенный CMakeLists.txt для полной системы тестирования FastEngine
+cmake_minimum_required(VERSION 3.16)
+project(FastEngineTests VERSION 1.0.0 LANGUAGES CXX)
+
+# Настройки для тестирования
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Включаем тестирование
+option(BUILD_TESTS "Build test suite" ON)
+option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
+option(ENABLE_TSAN "Enable ThreadSanitizer" OFF)
+option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" OFF)
+option(ENABLE_MSAN "Enable MemorySanitizer" OFF)
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
+option(INTEGRATE_FASTENGINE "Integrate with FastEngine library" OFF)
+
+if(BUILD_TESTS)
+    # Подключаем Google Test
+    find_package(GTest REQUIRED)
+    include(GoogleTest)
+    
+    # Настройки компилятора для тестирования
+    if(ENABLE_ASAN)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+        set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address")
+        message(STATUS "AddressSanitizer enabled")
+    endif()
+    
+    if(ENABLE_TSAN)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+        set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=thread")
+        message(STATUS "ThreadSanitizer enabled")
+    endif()
+    
+    if(ENABLE_UBSAN)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+        set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=undefined")
+        message(STATUS "UndefinedBehaviorSanitizer enabled")
+    endif()
+    
+    if(ENABLE_MSAN)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory")
+        set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=memory")
+        message(STATUS "MemorySanitizer enabled")
+    endif()
+    
+    if(ENABLE_COVERAGE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+        set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} --coverage")
+        message(STATUS "Code coverage enabled")
+    endif()
+    
+    # Unit тесты (базовые, без зависимостей)
+    add_executable(UnitTests
+        unit/main.cpp
+        unit/simple_math_test.cpp
+        unit/simple_string_test.cpp
+        unit/engine_basic_test.cpp
+    )
+    
+    # Добавляем пути включения для FastEngine
+    target_include_directories(UnitTests PRIVATE 
+        ../include
+        ../src
+        /opt/homebrew/include
+        /usr/local/include
+    )
+    
+    # Добавляем зависимости
+    find_package(glm REQUIRED)
+    target_link_libraries(UnitTests 
+        GTest::GTest 
+        glm::glm
+    )
+    
+    # Настройка unit тестов
+    gtest_discover_tests(UnitTests)
+    
+    # Интеграция с FastEngine (если включена)
+    if(INTEGRATE_FASTENGINE)
+        message(STATUS "Integrating with FastEngine library...")
+        
+        # Подключаем FastEngine
+        add_subdirectory(../src FastEngine)
+        target_include_directories(FastEngine PUBLIC ../include)
+        
+        # Находим зависимости
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(SDL2 REQUIRED sdl2)
+        find_package(glm REQUIRED)
+        
+        # Интеграционные тесты
+        add_executable(IntegrationTests
+            integration/engine_integration_test.cpp
+            integration/component_integration_test.cpp
+            integration/rendering_integration_test.cpp
+        )
+        target_link_libraries(IntegrationTests 
+            GTest::GTest 
+            FastEngine
+            ${SDL2_LIBRARIES}
+            glm::glm
+        )
+        target_include_directories(IntegrationTests PRIVATE ${SDL2_INCLUDE_DIRS})
+        target_compile_options(IntegrationTests PRIVATE ${SDL2_CFLAGS_OTHER})
+        
+        # Тесты производительности
+        add_executable(PerformanceTests
+            performance/rendering_performance_test.cpp
+            performance/memory_performance_test.cpp
+            performance/physics_performance_test.cpp
+        )
+        target_link_libraries(PerformanceTests 
+            GTest::GTest 
+            FastEngine
+            ${SDL2_LIBRARIES}
+            glm::glm
+        )
+        target_include_directories(PerformanceTests PRIVATE ${SDL2_INCLUDE_DIRS})
+        target_compile_options(PerformanceTests PRIVATE ${SDL2_CFLAGS_OTHER})
+        
+        # Тесты безопасности
+        add_executable(SecurityTests
+            security/input_validation_test.cpp
+            security/memory_safety_test.cpp
+            security/buffer_overflow_test.cpp
+        )
+        target_link_libraries(SecurityTests 
+            GTest::GTest 
+            FastEngine
+            ${SDL2_LIBRARIES}
+            glm::glm
+        )
+        target_include_directories(SecurityTests PRIVATE ${SDL2_INCLUDE_DIRS})
+        target_compile_options(SecurityTests PRIVATE ${SDL2_CFLAGS_OTHER})
+        
+        # Настройка интеграционных тестов
+        gtest_discover_tests(IntegrationTests)
+        gtest_discover_tests(PerformanceTests)
+        gtest_discover_tests(SecurityTests)
+        
+        message(STATUS "FastEngine integration tests configured")
+    endif()
+    
+    # Создаем директории для результатов тестов
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/test_results)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/coverage_reports)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/performance_reports)
+    
+    message(STATUS "Test suite configured successfully")
+endif()

@@ -1,0 +1,51 @@
+# Простой CMakeLists.txt для тестов FastEngine
+cmake_minimum_required(VERSION 3.16)
+
+# Настройки для тестирования
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Включаем тестирование
+option(BUILD_TESTS "Build test suite" ON)
+
+if(BUILD_TESTS)
+    # Подключаем Google Test
+    find_package(GTest REQUIRED)
+    include(GoogleTest)
+    
+    # Подключаем FastEngine (локально)
+    add_subdirectory(../src FastEngine)
+    
+    # Настройки компилятора для тестирования
+    if(ENABLE_ASAN)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+        set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address")
+    endif()
+    
+    # Unit тесты
+    add_executable(UnitTests
+        unit/engine_test.cpp
+    )
+    target_link_libraries(UnitTests FastEngine GTest::GTest)
+    target_include_directories(UnitTests PRIVATE ../include)
+    
+    # Интеграционные тесты
+    add_executable(IntegrationTests
+        integration/engine_integration_test.cpp
+    )
+    target_link_libraries(IntegrationTests FastEngine GTest::GTest)
+    target_include_directories(IntegrationTests PRIVATE ../include)
+    
+    # Тесты внешних библиотек
+    add_executable(ExternalLibraryTests
+        external/opengl_test.cpp
+    )
+    target_link_libraries(ExternalLibraryTests FastEngine GTest::GTest)
+    target_include_directories(ExternalLibraryTests PRIVATE ../include)
+    
+    # Настройка тестов
+    gtest_discover_tests(UnitTests)
+    gtest_discover_tests(IntegrationTests)
+    gtest_discover_tests(ExternalLibraryTests)
+endif()
+

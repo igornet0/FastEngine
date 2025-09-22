@@ -1,0 +1,296 @@
+{
+  "test_configuration": {
+    "version": "1.0",
+    "description": "Конфигурация системы тестирования FastEngine",
+    "author": "FastEngine Team",
+    "last_updated": "2024-01-01"
+  },
+  
+  "test_categories": {
+    "memory": {
+      "enabled": true,
+      "description": "Тесты памяти и управления ресурсами",
+      "timeout_seconds": 300,
+      "memory_limit_mb": 1024,
+      "sanitizers": ["address", "memory", "undefined"],
+      "valgrind": true
+    },
+    
+    "security": {
+      "enabled": true,
+      "description": "Тесты безопасности и валидации входных данных",
+      "timeout_seconds": 180,
+      "memory_limit_mb": 512,
+      "sanitizers": ["address", "undefined"],
+      "valgrind": false
+    },
+    
+    "performance": {
+      "enabled": true,
+      "description": "Тесты производительности и оптимизации",
+      "timeout_seconds": 600,
+      "memory_limit_mb": 2048,
+      "sanitizers": [],
+      "valgrind": false,
+      "benchmark": true
+    },
+    
+    "concurrency": {
+      "enabled": true,
+      "description": "Тесты многозадачности и потокобезопасности",
+      "timeout_seconds": 240,
+      "memory_limit_mb": 1024,
+      "sanitizers": ["thread"],
+      "valgrind": false,
+      "thread_count": 4
+    },
+    
+    "resilience": {
+      "enabled": true,
+      "description": "Тесты отказоустойчивости и восстановления",
+      "timeout_seconds": 120,
+      "memory_limit_mb": 512,
+      "sanitizers": ["address", "undefined"],
+      "valgrind": false
+    },
+    
+    "boundary": {
+      "enabled": true,
+      "description": "Тесты граничных случаев и крайних значений",
+      "timeout_seconds": 90,
+      "memory_limit_mb": 256,
+      "sanitizers": ["address", "undefined"],
+      "valgrind": false
+    },
+    
+    "unit": {
+      "enabled": true,
+      "description": "Unit тесты компонентов",
+      "timeout_seconds": 60,
+      "memory_limit_mb": 128,
+      "sanitizers": ["address", "undefined"],
+      "valgrind": false
+    },
+    
+    "integration": {
+      "enabled": true,
+      "description": "Интеграционные тесты систем",
+      "timeout_seconds": 180,
+      "memory_limit_mb": 512,
+      "sanitizers": ["address", "undefined"],
+      "valgrind": false
+    },
+    
+    "external": {
+      "enabled": true,
+      "description": "Тесты внешних библиотек и API",
+      "timeout_seconds": 300,
+      "memory_limit_mb": 1024,
+      "sanitizers": ["address", "undefined"],
+      "valgrind": false
+    }
+  },
+  
+  "test_parameters": {
+    "entity_count": {
+      "min": 1,
+      "max": 10000,
+      "default": 1000,
+      "description": "Количество сущностей для тестирования"
+    },
+    
+    "component_count": {
+      "min": 1,
+      "max": 1000,
+      "default": 100,
+      "description": "Количество компонентов на сущность"
+    },
+    
+    "thread_count": {
+      "min": 1,
+      "max": 16,
+      "default": 4,
+      "description": "Количество потоков для многопоточных тестов"
+    },
+    
+    "test_duration": {
+      "min": 1,
+      "max": 3600,
+      "default": 60,
+      "description": "Длительность тестов в секундах"
+    },
+    
+    "memory_allocation": {
+      "min": 1024,
+      "max": 1048576,
+      "default": 10240,
+      "description": "Размер выделения памяти в байтах"
+    }
+  },
+  
+  "test_data": {
+    "textures": [
+      "test_texture_64x64.png",
+      "test_texture_128x128.png",
+      "test_texture_256x256.png",
+      "test_texture_512x512.png",
+      "test_texture_1024x1024.png"
+    ],
+    
+    "shaders": [
+      "basic.vert",
+      "basic.frag",
+      "textured.vert",
+      "textured.frag",
+      "lit.vert",
+      "lit.frag"
+    ],
+    
+    "sounds": [
+      "test_sound_short.wav",
+      "test_sound_medium.wav",
+      "test_sound_long.wav",
+      "test_sound_loop.wav"
+    ],
+    
+    "models": [
+      "test_cube.obj",
+      "test_sphere.obj",
+      "test_plane.obj",
+      "test_complex.obj"
+    ],
+    
+    "configs": [
+      "test_config.json",
+      "test_scene.json",
+      "test_material.json"
+    ]
+  },
+  
+  "test_scenarios": {
+    "memory_leak": {
+      "description": "Тестирование утечек памяти",
+      "iterations": 1000,
+      "entities_per_iteration": 100,
+      "components_per_entity": 5
+    },
+    
+    "buffer_overflow": {
+      "description": "Тестирование переполнения буферов",
+      "buffer_sizes": [64, 128, 256, 512, 1024, 2048, 4096],
+      "test_patterns": ["normal", "boundary", "overflow"]
+    },
+    
+    "performance_rendering": {
+      "description": "Тестирование производительности рендеринга",
+      "sprite_counts": [100, 500, 1000, 2000, 5000, 10000],
+      "texture_sizes": [64, 128, 256, 512, 1024],
+      "shader_complexity": ["simple", "medium", "complex"]
+    },
+    
+    "concurrency_threads": {
+      "description": "Тестирование многопоточности",
+      "thread_counts": [2, 4, 8, 16],
+      "operations_per_thread": 1000,
+      "shared_resources": ["entities", "components", "world"]
+    },
+    
+    "security_input": {
+      "description": "Тестирование безопасности входных данных",
+      "malicious_inputs": [
+        "../../../etc/passwd",
+        "..\\..\\..\\windows\\system32\\config\\sam",
+        "javascript:alert('xss')",
+        "SELECT * FROM users; DROP TABLE users; --"
+      ],
+      "file_extensions": [".png", ".jpg", ".bmp", ".tga", ".exe", ".bat", ".cmd"]
+    }
+  },
+  
+  "output_settings": {
+    "formats": ["xml", "json", "html", "csv"],
+    "directory": "test_results",
+    "include_timestamps": true,
+    "include_system_info": true,
+    "include_performance_metrics": true,
+    "generate_coverage_report": true,
+    "generate_memory_report": true,
+    "generate_performance_report": true
+  },
+  
+  "system_requirements": {
+    "min_memory_mb": 1024,
+    "min_disk_space_mb": 512,
+    "min_cpu_cores": 2,
+    "supported_platforms": ["linux", "macos", "windows"],
+    "supported_compilers": ["gcc", "clang", "msvc"],
+    "required_libraries": ["gtest", "cmake", "valgrind"]
+  },
+  
+  "ci_cd": {
+    "github_actions": {
+      "enabled": true,
+      "workflow_file": ".github/workflows/tests.yml",
+      "matrix_strategy": {
+        "os": ["ubuntu-latest", "macos-latest", "windows-latest"],
+        "compiler": ["gcc", "clang", "msvc"]
+      }
+    },
+    
+    "jenkins": {
+      "enabled": false,
+      "pipeline_file": "Jenkinsfile",
+      "build_triggers": ["push", "pull_request", "schedule"]
+    },
+    
+    "gitlab_ci": {
+      "enabled": false,
+      "pipeline_file": ".gitlab-ci.yml",
+      "stages": ["build", "test", "deploy"]
+    }
+  },
+  
+  "notifications": {
+    "email": {
+      "enabled": false,
+      "recipients": ["team@fastengine.com"],
+      "on_failure": true,
+      "on_success": false
+    },
+    
+    "slack": {
+      "enabled": false,
+      "webhook_url": "https://hooks.slack.com/services/...",
+      "channel": "#testing",
+      "on_failure": true,
+      "on_success": false
+    },
+    
+    "discord": {
+      "enabled": false,
+      "webhook_url": "https://discord.com/api/webhooks/...",
+      "channel": "testing",
+      "on_failure": true,
+      "on_success": false
+    }
+  },
+  
+  "debugging": {
+    "verbose_output": false,
+    "debug_symbols": true,
+    "core_dumps": false,
+    "stack_traces": true,
+    "memory_maps": false,
+    "call_graphs": false
+  },
+  
+  "profiling": {
+    "enabled": false,
+    "tools": ["gprof", "perf", "valgrind", "sanitizers"],
+    "output_format": "text",
+    "include_system_calls": false,
+    "include_memory_usage": true,
+    "include_cpu_usage": true
+  }
+}
+

@@ -9,6 +9,7 @@ namespace FastEngine {
     class Renderer;
     class AudioManager;
     class InputManager;
+    class RenderSystem;
     
     class Engine {
     public:
@@ -27,6 +28,7 @@ namespace FastEngine {
         Renderer* GetRenderer() const { return m_renderer.get(); }
         AudioManager* GetAudioManager() const { return m_audioManager.get(); }
         InputManager* GetInputManager() const { return m_inputManager.get(); }
+        RenderSystem* GetRenderSystem() const { return m_renderSystem.get(); }
         
         // Управление состоянием
         bool IsRunning() const { return m_running; }
@@ -36,6 +38,9 @@ namespace FastEngine {
         float GetDeltaTime() const { return m_deltaTime; }
         float GetFPS() const { return m_fps; }
         
+        // Получение информации о платформе
+        std::string GetPlatformName() const;
+        
     private:
         void Update(float deltaTime);
         void Render();
@@ -44,6 +49,7 @@ namespace FastEngine {
         std::unique_ptr<Renderer> m_renderer;
         std::unique_ptr<AudioManager> m_audioManager;
         std::unique_ptr<InputManager> m_inputManager;
+        std::unique_ptr<RenderSystem> m_renderSystem;
         
         bool m_running;
         float m_deltaTime;

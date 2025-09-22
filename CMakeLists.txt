@@ -5,6 +5,11 @@ project(FastEngine VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Подавляем предупреждения OpenGL на macOS
+if(APPLE)
+    add_definitions(-DGL_SILENCE_DEPRECATION)
+endif()
+
 # Опции сборки
 option(BUILD_ANDROID "Build for Android" OFF)
 option(BUILD_IOS "Build for iOS" OFF)
@@ -26,8 +31,26 @@ endif()
 include_directories(include)
 include_directories(thirdparty)
 
+# Добавляем путь к GLM
+include_directories(/opt/homebrew/Cellar/glm/1.0.1/include)
+
+# Добавляем папку cmake для поиска модулей
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+# Поиск зависимостей
+find_package(GLM REQUIRED)
+
 # Подключаем подпроекты
 add_subdirectory(src)
+add_subdirectory(examples)
+
+# Опция для сборки симулятора
+option(BUILD_SIMULATOR "Build Project Simulator" ON)
+
+# Подключаем симулятор если включен
+if(BUILD_SIMULATOR)
+    add_subdirectory(simulator)
+endif()
 
 # Устанавливаем цели
 install(TARGETS FastEngine

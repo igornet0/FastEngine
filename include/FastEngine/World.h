@@ -46,6 +46,10 @@ namespace FastEngine {
         // Получение всех сущностей
         const std::vector<std::unique_ptr<Entity>>& GetEntities() const { return m_entities; }
         
+        // Получение сущностей с определенными компонентами
+        template<typename... ComponentTypes>
+        std::vector<Entity*> GetEntitiesWithComponents();
+        
     private:
         std::vector<std::unique_ptr<Entity>> m_entities;
         std::vector<std::unique_ptr<System>> m_systems;

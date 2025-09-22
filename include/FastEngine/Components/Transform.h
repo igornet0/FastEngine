@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include "FastEngine/Component.h"
 #include <glm/glm.hpp>
 
 namespace FastEngine {

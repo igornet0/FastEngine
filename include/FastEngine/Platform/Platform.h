@@ -2,6 +2,7 @@
 
 #include <string>
 #include <functional>
+#include <memory>
 
 namespace FastEngine {
     class Window;
@@ -23,6 +24,7 @@ namespace FastEngine {
         
         // Обработка событий
         void PollEvents();
+        void Present();
         
         // Управление состоянием
         bool ShouldClose() const;
@@ -41,5 +43,6 @@ namespace FastEngine {
         std::unique_ptr<Timer> m_timer;
         
         bool m_initialized;
+        bool m_shouldClose;
     };
 }
