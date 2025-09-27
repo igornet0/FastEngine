@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FastEngine Test Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f0f0f0; padding: 20px; border-radius: 5px; }
+        .summary { margin: 20px 0; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FastEngine Test Results</h1>
+        <p>Дата: Mon Sep 22 17:17:19 MSK 2025</p>
+        <p>Платформа: Darwin arm64</p>
+    </div>
+    
+    <div class="summary">
+        <h2>Сводка тестов</h2>
+        <p>Всего тестов: <strong>22</strong></p>
+        <p>Пройдено: <strong class="success">22</strong></p>
+        <p>Провалено: <strong class="error">0</strong></p>
+        
+        <h3>Покрытие тестами</h3>
+        <ul>
+            <li>Компоненты: Transform, Sprite, Animator, RigidBody, Collider, AudioSource, Text</li>
+            <li>Системы: PhysicsSystem, AnimationSystem, InputSystem, RenderSystem</li>
+            <li>Модули: AudioManager, ResourceManager</li>
+        </ul>
+    </div>
+    
+    <div class="summary">
+        <h2>Детальные результаты</h2>
+        <ul>
+            <li><a href="unit_test_results.xml">Unit тесты</a></li>
+            <li><a href="integration_test_results.xml">Интеграционные тесты</a></li>
+            <li><a href="performance_test_results.xml">Тесты производительности</a></li>
+            <li><a href="security_test_results.xml">Тесты безопасности</a></li>
+        </ul>
+    </div>
+</body>
+</html>

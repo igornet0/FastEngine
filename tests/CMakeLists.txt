@@ -56,7 +56,7 @@ if(BUILD_TESTS)
         unit/main.cpp
         unit/simple_math_test.cpp
         unit/simple_string_test.cpp
-        unit/engine_basic_test.cpp
+        unit/engine_fixed_test.cpp
     )
     
     # Добавляем пути включения для FastEngine
