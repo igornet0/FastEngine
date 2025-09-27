@@ -20,8 +20,19 @@ endif()
 include_directories(include)
 include_directories(../include)
 
-# Находим FastEngine
-find_package(FastEngine REQUIRED PATHS ../build_debug)
+# Находим зависимости
+find_package(GLM REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(SDL2 REQUIRED)
+
+# Подключаем уже собранную библиотеку FastEngine
+add_library(FastEngine STATIC IMPORTED)
+set_target_properties(FastEngine PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../build/libFastEngine.a
+)
+
+# Включаем заголовочные файлы FastEngine
+target_include_directories(FastEngine INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 # Исходные файлы
 set(SIMULATOR_SOURCES
@@ -55,8 +66,8 @@ set(SIMULATOR_HEADERS
 # Создаем библиотеку симулятора
 add_library(ProjectSimulator STATIC ${SIMULATOR_SOURCES} ${SIMULATOR_HEADERS})
 
-# Линкуем с FastEngine
-target_link_libraries(ProjectSimulator FastEngine)
+# Линкуем с FastEngine и зависимостями
+target_link_libraries(ProjectSimulator FastEngine OpenGL::GL SDL2::SDL2 SDL2::SDL2main)
 
 # Настройки для iOS
 if(IOS)
@@ -87,13 +98,6 @@ if(APPLE AND NOT IOS)
         "-framework CoreFoundation"
     )
 endif()
-
-# Создаем исполняемый файл симулятора
-add_executable(SimulatorApp
-    examples/main.cpp
-)
-
-target_link_libraries(SimulatorApp ProjectSimulator)
 
 # Создаем CLI исполняемый файл
 add_executable(SimulatorCLI

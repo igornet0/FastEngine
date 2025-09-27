@@ -52,6 +52,21 @@ if(BUILD_SIMULATOR)
     add_subdirectory(simulator)
 endif()
 
+# Опция для сборки Qt редактора
+option(BUILD_QT_EDITOR "Build Qt Editor" ON)
+option(BUILD_QT_EDITOR_TESTS "Build Qt Editor Tests" OFF)
+
+# Подключаем Qt редактор если включен
+if(BUILD_QT_EDITOR)
+    find_package(Qt6 REQUIRED COMPONENTS Core Widgets OpenGL OpenGLWidgets 3DCore 3DRender 3DInput 3DExtras Gui)
+    add_subdirectory(qt_editor)
+endif()
+
+if(BUILD_QT_EDITOR_TESTS)
+    find_package(Qt6 REQUIRED COMPONENTS Core Widgets Test OpenGL OpenGLWidgets)
+    add_subdirectory(qt_editor_tests)
+endif()
+
 # Устанавливаем цели
 install(TARGETS FastEngine
     LIBRARY DESTINATION lib

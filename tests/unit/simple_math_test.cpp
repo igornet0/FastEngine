@@ -43,3 +43,4 @@ TEST_F(MathTest, EdgeCases) {
     EXPECT_TRUE(std::isinf(1.0 / 0.0));
 }
 
+

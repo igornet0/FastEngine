@@ -422,3 +422,4 @@ jobs:
         echo "All tests passed successfully!"
         # Здесь можно добавить отправку уведомлений в Slack, Discord, email и т.д.
 
+

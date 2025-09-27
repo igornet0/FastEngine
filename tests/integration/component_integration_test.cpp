@@ -179,3 +179,4 @@ TEST_F(ComponentIntegrationTest, ComponentCopy) {
     EXPECT_FLOAT_EQ(scale1.x, scale2.x);
     EXPECT_FLOAT_EQ(scale1.y, scale2.y);
 }
+

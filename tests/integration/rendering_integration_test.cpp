@@ -231,3 +231,4 @@ TEST_F(RenderingIntegrationTest, RenderStateManagement) {
     
     renderer->Shutdown();
 }
+

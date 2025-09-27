@@ -288,3 +288,4 @@ TEST_F(MemorySafetyTest, ExceptionSafetyTest) {
     auto entity = world->CreateEntity();
     EXPECT_TRUE(entity != nullptr);
 }
+

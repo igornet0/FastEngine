@@ -299,3 +299,4 @@ TEST_F(MemoryPerformanceTest, StressMemoryTest) {
     EXPECT_LT(duration.count(), 10000); // Менее 10 секунд
     EXPECT_EQ(entities.size(), maxEntities);
 }
+

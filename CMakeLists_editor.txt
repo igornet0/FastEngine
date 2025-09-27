@@ -1,0 +1,51 @@
+cmake_minimum_required(VERSION 3.16)
+project(SimpleGameEditor)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Подавляем предупреждения OpenGL на macOS
+if(APPLE)
+    add_definitions(-DGL_SILENCE_DEPRECATION)
+endif()
+
+# Включаем директории
+include_directories(include)
+include_directories(thirdparty)
+
+# Добавляем путь к GLM
+include_directories(/opt/homebrew/Cellar/glm/1.0.1/include)
+
+# Поиск зависимостей
+find_package(GLM REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(SDL2 REQUIRED)
+
+# Подключаем уже собранную библиотеку FastEngine
+add_library(FastEngine STATIC IMPORTED)
+set_target_properties(FastEngine PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/build/libFastEngine.a
+)
+
+# Включаем заголовочные файлы FastEngine
+target_include_directories(FastEngine INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Создаем исполняемый файл редактора
+add_executable(SimpleGameEditor simple_editor.cpp)
+
+# Линкуем с FastEngine и зависимостями
+target_link_libraries(SimpleGameEditor FastEngine OpenGL::GL SDL2::SDL2 SDL2::SDL2main)
+
+# Настройки для macOS
+if(APPLE)
+    target_link_libraries(SimpleGameEditor
+        "-framework Cocoa"
+        "-framework OpenGL"
+        "-framework IOKit"
+        "-framework CoreFoundation"
+    )
+endif()
+
+# Копируем ассеты
+file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+
