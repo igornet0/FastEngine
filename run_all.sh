@@ -39,6 +39,7 @@ show_help() {
     echo "  editors              Запустить редакторы"
     echo "  tests                Запустить тесты"
     echo "  build                Собрать проект"
+    echo "  build-editors        Собрать только редакторы (без симулятора и примеров)"
     echo "  clean                Очистить build файлы"
     echo "  help                 Показать эту справку"
     echo ""
@@ -114,12 +115,15 @@ run_editors() {
         esac
     fi
     
+    # Корень проекта (где лежит run_all.sh)
+    PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
+    BUILD_DIR="$PROJECT_ROOT/build"
+
     case $editor_type in
         qt)
             print_message "Запуск Qt редактора..."
-            cd editors/qt
-            if [ -f "qt_editor" ]; then
-                ./qt_editor
+            if [ -f "$BUILD_DIR/editors/qt/FastEngineQtEditor" ]; then
+                (cd "$PROJECT_ROOT" && "$BUILD_DIR/editors/qt/FastEngineQtEditor")
             else
                 print_error "Qt редактор не собран. Запустите: $0 build"
                 exit 1
@@ -127,9 +131,8 @@ run_editors() {
             ;;
         sdl)
             print_message "Запуск SDL редактора..."
-            cd editors/sdl
-            if [ -f "SimpleGameEditorSDL" ]; then
-                ./SimpleGameEditorSDL
+            if [ -f "$BUILD_DIR/editors/sdl/SimpleGameEditorSDL" ]; then
+                (cd "$PROJECT_ROOT" && "$BUILD_DIR/editors/sdl/SimpleGameEditorSDL")
             else
                 print_error "SDL редактор не собран. Запустите: $0 build"
                 exit 1
@@ -137,9 +140,8 @@ run_editors() {
             ;;
         advanced)
             print_message "Запуск Advanced редактора..."
-            cd editors/advanced
-            if [ -f "AdvancedGameEditor" ]; then
-                ./AdvancedGameEditor
+            if [ -f "$BUILD_DIR/editors/advanced/AdvancedGameEditor" ]; then
+                (cd "$PROJECT_ROOT" && "$BUILD_DIR/editors/advanced/AdvancedGameEditor")
             else
                 print_error "Advanced редактор не собран. Запустите: $0 build"
                 exit 1
@@ -280,21 +282,37 @@ run_tests() {
 # Функция для сборки проекта
 build_project() {
     print_message "Сборка FastEngine..."
-    
+
     # Создаем build директорию
     mkdir -p build
     cd build
-    
+
     # Конфигурируем CMake
     print_message "Конфигурация CMake..."
     cmake ..
-    
+
     # Собираем проект
     print_message "Сборка проекта..."
     make -j4
-    
+
     cd ..
     print_success "Проект собран успешно!"
+}
+
+# Сборка только редакторов (обход ошибок в симуляторе/других целях)
+build_editors_only() {
+    local script_dir
+    script_dir="$(cd "$(dirname "$0")" && pwd)"
+    (cd "$script_dir" && {
+        print_message "Сборка только редакторов..."
+        if [ ! -d "build" ] || [ ! -f "build/Makefile" ]; then
+            print_message "Первичная конфигурация CMake..."
+            mkdir -p build
+            (cd build && cmake ..)
+        fi
+        (cd build && make FastEngine FastEngineQtEditor SimpleGameEditorSDL AdvancedGameEditor -j4)
+        print_success "Редакторы собраны: build/editors/qt/FastEngineQtEditor, build/editors/sdl/SimpleGameEditorSDL, build/editors/advanced/AdvancedGameEditor"
+    })
 }
 
 # Функция для очистки
@@ -327,6 +345,9 @@ main() {
             ;;
         build)
             build_project
+            ;;
+        build-editors)
+            build_editors_only
             ;;
         clean)
             clean_project
