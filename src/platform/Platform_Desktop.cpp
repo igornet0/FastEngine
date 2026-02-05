@@ -30,7 +30,6 @@ namespace FastEngine {
     // Platform Implementation
     Platform& Platform::GetInstance() {
         static Platform instance;
-        std::cout << "Platform::GetInstance() called" << std::endl;
         return instance;
     }
     
@@ -148,5 +147,27 @@ namespace FastEngine {
     
     std::string Platform::GetVersion() const {
         return "1.0.0";
+    }
+    
+    void Platform::SetKeyCallbacks(std::function<void(int)> onKeyDown, std::function<void(int)> onKeyUp) {
+        m_onKeyDown = std::move(onKeyDown);
+        m_onKeyUp = std::move(onKeyUp);
+        if (m_window) {
+            m_window->OnKeyDown = [this](int k) { if (m_onKeyDown) m_onKeyDown(k); };
+            m_window->OnKeyUp = [this](int k) { if (m_onKeyUp) m_onKeyUp(k); };
+        }
+    }
+
+    void Platform::SetMouseCallbacks(std::function<void(int, int, int)> onMouseDown,
+                                     std::function<void(int, int, int)> onMouseUp,
+                                     std::function<void(int, int)> onMouseMove) {
+        m_onMouseDown = std::move(onMouseDown);
+        m_onMouseUp = std::move(onMouseUp);
+        m_onMouseMove = std::move(onMouseMove);
+        if (m_window) {
+            m_window->OnMouseDown = [this](int x, int y, int b) { if (m_onMouseDown) m_onMouseDown(x, y, b); };
+            m_window->OnMouseUp = [this](int x, int y, int b) { if (m_onMouseUp) m_onMouseUp(x, y, b); };
+            m_window->OnMouseMove = [this](int x, int y) { if (m_onMouseMove) m_onMouseMove(x, y); };
+        }
     }
 }

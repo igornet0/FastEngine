@@ -1,0 +1,78 @@
+# CMakeLists.txt for new features tests
+
+cmake_minimum_required(VERSION 3.16)
+project(PhotoEditorNewFeaturesTests)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find Qt6
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Test Svg PrintSupport)
+
+# Enable Qt6 Test
+enable_testing()
+
+# Include directories
+include_directories(../include)
+include_directories(../src)
+
+# Source files for new features
+set(NEW_FEATURES_SOURCES
+    ../src/ImageDocument.cpp
+    ../src/LayerPanel.cpp
+    ../src/CanvasWidget.cpp
+    ../src/FilterManager.cpp
+    ../src/DocumentManager.cpp
+    ../src/GridOverlay.cpp
+    ../src/AutoSaveManager.cpp
+    ../src/BatchProcessor.cpp
+    ../src/ThemeManager.cpp
+    ../src/MetadataViewer.cpp
+    ../src/ExportManager.cpp
+    ../src/ClipboardHistory.cpp
+)
+
+# Test executables
+add_executable(test_document_manager ../tests/unit/test_document_manager.cpp ${NEW_FEATURES_SOURCES})
+target_link_libraries(test_document_manager Qt6::Core Qt6::Widgets Qt6::Test Qt6::Svg Qt6::PrintSupport)
+
+add_executable(test_grid_overlay ../tests/unit/test_grid_overlay.cpp ${NEW_FEATURES_SOURCES})
+target_link_libraries(test_grid_overlay Qt6::Core Qt6::Widgets Qt6::Test Qt6::Svg Qt6::PrintSupport)
+
+add_executable(test_auto_save_manager ../tests/unit/test_auto_save_manager.cpp ${NEW_FEATURES_SOURCES})
+target_link_libraries(test_auto_save_manager Qt6::Core Qt6::Widgets Qt6::Test Qt6::Svg Qt6::PrintSupport)
+
+add_executable(test_batch_processor ../tests/unit/test_batch_processor.cpp ${NEW_FEATURES_SOURCES})
+target_link_libraries(test_batch_processor Qt6::Core Qt6::Widgets Qt6::Test Qt6::Svg Qt6::PrintSupport)
+
+add_executable(test_theme_manager ../tests/unit/test_theme_manager.cpp ${NEW_FEATURES_SOURCES})
+target_link_libraries(test_theme_manager Qt6::Core Qt6::Widgets Qt6::Test Qt6::Svg Qt6::PrintSupport)
+
+add_executable(test_metadata_viewer ../tests/unit/test_metadata_viewer.cpp ${NEW_FEATURES_SOURCES})
+target_link_libraries(test_metadata_viewer Qt6::Core Qt6::Widgets Qt6::Test Qt6::Svg Qt6::PrintSupport)
+
+add_executable(test_export_manager ../tests/unit/test_export_manager.cpp ${NEW_FEATURES_SOURCES})
+target_link_libraries(test_export_manager Qt6::Core Qt6::Widgets Qt6::Test Qt6::Svg Qt6::PrintSupport)
+
+add_executable(test_clipboard_history ../tests/unit/test_clipboard_history.cpp ${NEW_FEATURES_SOURCES})
+target_link_libraries(test_clipboard_history Qt6::Core Qt6::Widgets Qt6::Test Qt6::Svg Qt6::PrintSupport)
+
+# Add tests
+add_test(NAME DocumentManagerTest COMMAND test_document_manager)
+add_test(NAME GridOverlayTest COMMAND test_grid_overlay)
+add_test(NAME AutoSaveManagerTest COMMAND test_auto_save_manager)
+add_test(NAME BatchProcessorTest COMMAND test_batch_processor)
+add_test(NAME ThemeManagerTest COMMAND test_theme_manager)
+add_test(NAME MetadataViewerTest COMMAND test_metadata_viewer)
+add_test(NAME ExportManagerTest COMMAND test_export_manager)
+add_test(NAME ClipboardHistoryTest COMMAND test_clipboard_history)
+
+# Set test properties
+set_tests_properties(DocumentManagerTest PROPERTIES TIMEOUT 30)
+set_tests_properties(GridOverlayTest PROPERTIES TIMEOUT 30)
+set_tests_properties(AutoSaveManagerTest PROPERTIES TIMEOUT 30)
+set_tests_properties(BatchProcessorTest PROPERTIES TIMEOUT 30)
+set_tests_properties(ThemeManagerTest PROPERTIES TIMEOUT 30)
+set_tests_properties(MetadataViewerTest PROPERTIES TIMEOUT 30)
+set_tests_properties(ExportManagerTest PROPERTIES TIMEOUT 30)
+set_tests_properties(ClipboardHistoryTest PROPERTIES TIMEOUT 30)

@@ -18,7 +18,7 @@ namespace FastEngine {
         void Cleanup() override;
         
         // Управление камерой
-        void SetCamera(Camera* camera) { m_camera = camera; }
+        void SetCamera(Camera* camera);
         Camera* GetCamera() const { return m_camera; }
         
     private:

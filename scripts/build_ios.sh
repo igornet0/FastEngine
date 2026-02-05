@@ -16,7 +16,8 @@ cmake ../.. \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_IOS=ON
 
-# Собираем проект
-make -j$(sysctl -n hw.ncpu)
+# Собираем проект (только библиотека FastEngine; примеры для iOS не собираются)
+make -j$(sysctl -n hw.ncpu) FastEngine
 
-echo "Сборка завершена! Библиотека находится в build/ios/"
+echo "Сборка завершена! Библиотека: build/ios/src/libFastEngine.a"
+echo "Для запуска на симуляторе или устройстве откройте ios_app/FastEngineApp.xcodeproj в Xcode."

@@ -4,6 +4,7 @@
 #include "FastEngine/Audio/AudioManager.h"
 #include "FastEngine/Input/InputManager.h"
 #include "FastEngine/Platform/Platform.h"
+#include "FastEngine/Platform/Window.h"
 #include "FastEngine/Platform/Timer.h"
 #include "FastEngine/Systems/RenderSystem.h"
 #include <iostream>
@@ -13,7 +14,8 @@ namespace FastEngine {
         : m_running(false)
         , m_deltaTime(0.0f)
         , m_fps(0.0f)
-        , m_lastFrameTime(0.0f) {
+        , m_lastFrameTime(0.0f)
+        , m_frameCount(0) {
     }
     
     Engine::~Engine() {
@@ -47,6 +49,25 @@ namespace FastEngine {
         if (!m_inputManager->Initialize()) {
             return false;
         }
+        
+        // Проброс событий клавиш из окна в InputManager (desktop)
+        Platform::GetInstance().SetKeyCallbacks(
+            [this](int key) { if (m_inputManager) m_inputManager->OnKeyDown(key); },
+            [this](int key) { if (m_inputManager) m_inputManager->OnKeyUp(key); });
+        // Проброс мыши как touch id 0 (левый клик = touch)
+        Platform::GetInstance().SetMouseCallbacks(
+            [this](int x, int y, int button) {
+                if (m_inputManager && button == 1)
+                    m_inputManager->OnTouchDown(0, static_cast<float>(x), static_cast<float>(y));
+            },
+            [this](int x, int y, int button) {
+                if (m_inputManager && button == 1)
+                    m_inputManager->OnTouchUp(0, static_cast<float>(x), static_cast<float>(y));
+            },
+            [this](int x, int y) {
+                if (m_inputManager)
+                    m_inputManager->OnTouchMove(0, static_cast<float>(x), static_cast<float>(y));
+            });
         
         // Инициализация системы рендеринга
         if (m_renderSystem) {
@@ -87,34 +108,46 @@ namespace FastEngine {
     
     void Engine::Run() {
         while (m_running && !Platform::GetInstance().ShouldClose()) {
-            float currentTime = Platform::GetInstance().GetTimer()->GetTime();
-            m_deltaTime = currentTime - m_lastFrameTime;
-            m_lastFrameTime = currentTime;
-            
-            // Обновление FPS
-            static float fpsTimer = 0.0f;
-            static int frameCount = 0;
-            fpsTimer += m_deltaTime;
-            frameCount++;
-            
-            if (fpsTimer >= 1.0f) {
-                m_fps = frameCount / fpsTimer;
-                frameCount = 0;
-                fpsTimer = 0.0f;
-            }
-            
-            // Обработка событий
-            Platform::GetInstance().PollEvents();
-            
-            // Обновление систем
-            Update(m_deltaTime);
-            
-            // Отрисовка
-            Render();
-            
-            // Показываем результат
-            Platform::GetInstance().Present();
+            RunOneFrame();
         }
+    }
+    
+    void Engine::RunOneFrame() {
+        if (!m_running) return;
+        
+        // Синхронизируем размер рендерера с окном (важно при смене ориентации на iOS)
+        Window* win = Platform::GetInstance().GetWindow();
+        if (win && m_renderer) {
+            int w = win->GetWidth();
+            int h = win->GetHeight();
+            if (w > 0 && h > 0) {
+                m_renderer->SetViewport(0, 0, w, h);
+            }
+        }
+        
+        Platform::GetInstance().GetTimer()->Update();
+        float currentTime = Platform::GetInstance().GetTimer()->GetTime();
+        m_deltaTime = currentTime - m_lastFrameTime;
+        m_lastFrameTime = currentTime;
+        
+        // Счётчик кадров (общее число с запуска)
+        m_frameCount++;
+        
+        // Обновление FPS (раз в секунду)
+        static float fpsTimer = 0.0f;
+        static int framesInSecond = 0;
+        fpsTimer += m_deltaTime;
+        framesInSecond++;
+        if (fpsTimer >= 1.0f) {
+            m_fps = static_cast<float>(framesInSecond) / fpsTimer;
+            framesInSecond = 0;
+            fpsTimer = 0.0f;
+        }
+        
+        Platform::GetInstance().PollEvents();
+        Update(m_deltaTime);
+        Render();
+        Platform::GetInstance().Present();
     }
     
     void Engine::Update(float deltaTime) {
@@ -132,8 +165,10 @@ namespace FastEngine {
     }
     
     void Engine::Render() {
-        // Отрисовка теперь обрабатывается в RenderSystem::Update()
-        // Этот метод оставлен для совместимости
+        // Отрисовка мира обрабатывается в RenderSystem::Update()
+        if (m_renderCallback) {
+            m_renderCallback();
+        }
     }
     
     std::string Engine::GetPlatformName() const {

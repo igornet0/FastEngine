@@ -39,6 +39,11 @@ cd FastEngine
 
 ### 2. Сборка для Desktop
 ```bash
+# Используйте новый объединённый скрипт
+chmod +x run_all.sh
+./run_all.sh build
+
+# Или используйте старые скрипты
 chmod +x scripts/build_desktop.sh
 ./scripts/build_desktop.sh
 ```
@@ -52,11 +57,17 @@ chmod +x scripts/build_android.sh
 ./scripts/build_android.sh
 ```
 
-### 4. Сборка для iOS
-```bash
-chmod +x scripts/build_ios.sh
-./scripts/build_ios.sh
-```
+### 4. Сборка и запуск на iOS / iPhone
+1. Соберите библиотеку движка для iOS:
+   ```bash
+   chmod +x scripts/build_ios.sh
+   ./scripts/build_ios.sh
+   ```
+2. Откройте Xcode-проект приложения и запустите на симуляторе или устройстве:
+   ```bash
+   open ios_app/FastEngineApp.xcodeproj
+   ```
+   В Xcode выберите целевое устройство (iPhone Simulator или подключённый iPhone), при необходимости укажите Team в Signing & Capabilities и нажмите Run (Cmd+R). Подробнее см. [ios_app/README.md](ios_app/README.md).
 
 ## Использование
 
@@ -95,15 +106,26 @@ int main() {
 ### Структура проекта
 ```
 FastEngine/
-├── src/                    # Исходный код
+├── src/                    # Исходный код движка
 │   ├── core/              # Ядро движка (ECS)
 │   ├── platform/          # Платформенная абстракция
 │   ├── render/            # Система рендеринга
 │   ├── audio/             # Аудио система
 │   └── input/             # Система ввода
 ├── include/               # Заголовочные файлы
+├── editors/               # Редакторы
+│   ├── qt/               # Qt редактор
+│   ├── sdl/              # SDL редактор
+│   └── advanced/         # Advanced редактор
+├── simulator/             # Симулятор проектов
+├── tests/                 # Тесты
+│   ├── unit/             # Unit тесты
+│   ├── integration/      # Интеграционные тесты
+│   ├── editors/          # Тесты редакторов
+│   └── simulator/        # Тесты симулятора
 ├── examples/              # Примеры использования
 ├── scripts/               # Скрипты сборки
+├── assets/                # Ресурсы (текстуры, шейдеры, звуки)
 └── thirdparty/            # Внешние библиотеки
 ```
 
@@ -172,6 +194,31 @@ MIT License - см. файл LICENSE для подробностей.
 2. Создайте ветку для новой функции
 3. Внесите изменения
 4. Создайте Pull Request
+
+## Управление проектом
+
+### Объединённый скрипт запуска
+
+Используйте `run_all.sh` для управления всеми аспектами проекта:
+
+```bash
+# Запуск редакторов
+./run_all.sh editors --qt          # Qt редактор
+./run_all.sh editors --sdl         # SDL редактор  
+./run_all.sh editors --advanced    # Advanced редактор
+./run_all.sh editors --all         # Все редакторы
+
+# Запуск тестов
+./run_all.sh tests --unit          # Unit тесты
+./run_all.sh tests --integration   # Интеграционные тесты
+./run_all.sh tests --performance   # Тесты производительности
+./run_all.sh tests --all           # Все тесты
+
+# Сборка и очистка
+./run_all.sh build                 # Собрать проект
+./run_all.sh clean                 # Очистить build файлы
+./run_all.sh help                  # Показать справку
+```
 
 ## Поддержка
 

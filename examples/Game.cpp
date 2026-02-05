@@ -33,17 +33,17 @@ void Game::Initialize() {
         renderSystem->SetCamera(m_camera);
     }
     
-    // Создаем фоновый спрайт
+    // Создаем фоновый спрайт (центр 400,300 чтобы покрыть видимую область 0..800, 0..600)
     m_background = m_world->CreateEntity();
-    m_background->AddComponent<FastEngine::Transform>(0.0f, 0.0f);
-    auto* bgSprite = m_background->AddComponent<FastEngine::Sprite>("background.png");
+    m_background->AddComponent<FastEngine::Transform>(400.0f, 300.0f);
+    auto* bgSprite = m_background->AddComponent<FastEngine::Sprite>("textures/background.bmp");
     bgSprite->SetSize(800.0f, 600.0f);
     bgSprite->SetColor(0.2f, 0.3f, 0.8f, 1.0f); // Синий фон
     
     // Создаем игрока
     m_player = m_world->CreateEntity();
     m_player->AddComponent<FastEngine::Transform>(400.0f, 300.0f);
-    auto* playerSprite = m_player->AddComponent<FastEngine::Sprite>("player.png");
+    auto* playerSprite = m_player->AddComponent<FastEngine::Sprite>("textures/player.bmp");
     playerSprite->SetSize(64.0f, 64.0f);
     playerSprite->SetColor(1.0f, 0.5f, 0.0f, 1.0f); // Оранжевый игрок
     
@@ -53,7 +53,7 @@ void Game::Initialize() {
         float x = 100.0f + i * 150.0f;
         float y = 100.0f + (i % 2) * 200.0f;
         enemy->AddComponent<FastEngine::Transform>(x, y);
-        auto* enemySprite = enemy->AddComponent<FastEngine::Sprite>("enemy.png");
+        auto* enemySprite = enemy->AddComponent<FastEngine::Sprite>("textures/enemy.bmp");
         enemySprite->SetSize(48.0f, 48.0f);
         enemySprite->SetColor(1.0f, 0.0f, 0.0f, 1.0f); // Красные враги
         m_enemies.push_back(enemy);

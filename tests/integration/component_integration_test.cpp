@@ -180,3 +180,11 @@ TEST_F(ComponentIntegrationTest, ComponentCopy) {
     EXPECT_FLOAT_EQ(scale1.y, scale2.y);
 }
 
+
+
+
+
+
+
+
+

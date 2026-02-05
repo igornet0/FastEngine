@@ -289,3 +289,12 @@ TEST_F(MemorySafetyTest, ExceptionSafetyTest) {
     EXPECT_TRUE(entity != nullptr);
 }
 
+
+
+
+
+
+
+
+
+

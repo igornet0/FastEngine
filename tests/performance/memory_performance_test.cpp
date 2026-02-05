@@ -300,3 +300,11 @@ TEST_F(MemoryPerformanceTest, StressMemoryTest) {
     EXPECT_EQ(entities.size(), maxEntities);
 }
 
+
+
+
+
+
+
+
+

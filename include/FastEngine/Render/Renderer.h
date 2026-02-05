@@ -30,10 +30,20 @@ namespace FastEngine {
         // Отрисовка спрайтов
         void DrawSprite(Sprite* sprite, const glm::mat4& transform);
         void DrawTexture(Texture* texture, const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(1.0f));
+        /// Отладка: квад на весь NDC (-1..1) заданным цветом (без камеры)
+        void DrawDebugFullScreenQuad(float r, float g, float b, float a = 1.0f);
+        /// Прямоугольник в мировых координатах (x,y) — левый нижний угол, без текстуры (для кнопок)
+        void DrawFilledRect(float x, float y, float width, float height, const glm::vec4& color);
         
         // Управление состоянием
         void SetViewport(int x, int y, int width, int height);
+        /// Только glViewport и сохранение для ScreenToWorld (letterbox)
+        void SetViewportRect(int x, int y, int width, int height);
         void SetBlendMode(bool enabled);
+        void SetGameSize(int gameWidth, int gameHeight);
+        
+        /// Преобразование координат окна (пиксели) в мировые (0..gameWidth, 0..gameHeight, Y вверх)
+        glm::vec2 ScreenToWorld(int screenX, int screenY) const;
         
         // Получение информации
         int GetWidth() const { return m_width; }
@@ -46,6 +56,9 @@ namespace FastEngine {
         int m_width;
         int m_height;
         Camera* m_camera;
+        int m_vpX, m_vpY, m_vpW, m_vpH;
+        int m_gameWidth;
+        int m_gameHeight;
         
         // OpenGL объекты
         unsigned int m_quadVAO;

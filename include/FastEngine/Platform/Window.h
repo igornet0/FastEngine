@@ -16,19 +16,19 @@ namespace FastEngine {
         };
         
         Window();
-        ~Window();
+        virtual ~Window();
         
         // Создание и уничтожение окна
-        bool Create(const WindowConfig& config);
-        void Destroy();
+        virtual bool Create(const WindowConfig& config);
+        virtual void Destroy();
         
         // Управление окном
-        void Show();
-        void Hide();
-        void SetTitle(const std::string& title);
-        void SetSize(int width, int height);
-        void SetFullscreen(bool fullscreen);
-        void SetVSync(bool enabled);
+        virtual void Show();
+        virtual void Hide();
+        virtual void SetTitle(const std::string& title);
+        virtual void SetSize(int width, int height);
+        virtual void SetFullscreen(bool fullscreen);
+        virtual void SetVSync(bool enabled);
         
         // Получение информации
         int GetWidth() const { return m_width; }
@@ -37,7 +37,7 @@ namespace FastEngine {
         bool IsVSyncEnabled() const { return m_vsync; }
         
         // Обработка событий
-        void PollEvents();
+        virtual void PollEvents();
         
         // Получение нативного окна (для платформо-специфичного кода)
         void* GetNativeWindow() const { return m_nativeWindow; }
@@ -45,8 +45,14 @@ namespace FastEngine {
         // Обратные вызовы для событий
         std::function<void(int, int)> OnResize;
         std::function<void()> OnClose;
+        std::function<void(int)> OnKeyDown;
+        std::function<void(int)> OnKeyUp;
+        /// Мышь: (x, y) в пикселях окна, button: 1=left, 2=middle, 3=right
+        std::function<void(int x, int y, int button)> OnMouseDown;
+        std::function<void(int x, int y, int button)> OnMouseUp;
+        std::function<void(int x, int y)> OnMouseMove;
         
-    private:
+    protected:
         void* m_nativeWindow;
         std::string m_title;
         int m_width;

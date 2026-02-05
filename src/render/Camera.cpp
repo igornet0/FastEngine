@@ -66,7 +66,6 @@ namespace FastEngine {
             float right = m_size.x * 0.5f;
             float bottom = -m_size.y * 0.5f;
             float top = m_size.y * 0.5f;
-            
             return glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
         }
     }

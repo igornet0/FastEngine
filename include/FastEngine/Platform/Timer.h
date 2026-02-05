@@ -4,34 +4,34 @@ namespace FastEngine {
     class Timer {
     public:
         Timer();
-        ~Timer();
+        virtual ~Timer();
         
         // Инициализация
-        bool Initialize();
-        void Shutdown();
+        virtual bool Initialize();
+        virtual void Shutdown();
         
         // Получение времени
-        float GetTime() const;           // Время в секундах с момента инициализации
-        float GetDeltaTime() const;      // Время между кадрами
-        float GetFPS() const;            // FPS
+        virtual float GetTime() const;           // Время в секундах с момента инициализации
+        virtual float GetDeltaTime() const;      // Время между кадрами
+        virtual float GetFPS() const;            // FPS
         
         // Управление временем
-        void Reset();
-        void Pause();
-        void Resume();
+        virtual void Reset();
+        virtual void Pause();
+        virtual void Resume();
         bool IsPaused() const { return m_paused; }
         
         // Обновление (вызывается каждый кадр)
-        void Update();
+        virtual void Update();
         
-    private:
-        float GetCurrentTime() const;
-        
+    protected:
         float m_startTime;
         float m_lastTime;
         float m_deltaTime;
         float m_fps;
         bool m_paused;
         bool m_initialized;
+    private:
+        float GetCurrentTime() const;
     };
 }

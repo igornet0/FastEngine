@@ -25,14 +25,7 @@ find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 
-# Подключаем уже собранную библиотеку FastEngine
-add_library(FastEngine STATIC IMPORTED)
-set_target_properties(FastEngine PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../build/libFastEngine.a
-)
-
-# Включаем заголовочные файлы FastEngine
-target_include_directories(FastEngine INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+# FastEngine уже подключен в основном CMakeLists.txt
 
 # Исходные файлы
 set(SIMULATOR_SOURCES

@@ -1,16 +1,11 @@
-# Создаем библиотеку FastEngine
-add_library(FastEngine STATIC
-    # Core
+# Список исходников (Export не нужен на iOS — std::filesystem недоступен до iOS 13)
+set(FastEngine_SOURCES
     core/Engine.cpp
     core/World.cpp
     core/Entity.cpp
-    
-    # Platform - базовые файлы
     platform/Window.cpp
     platform/FileSystem.cpp
     platform/Timer.cpp
-    
-    # Render
     render/Renderer.cpp
     render/Texture.cpp
     render/Shader.cpp
@@ -18,21 +13,13 @@ add_library(FastEngine STATIC
     render/ImageLoader.cpp
     render/Mesh.cpp
     render/Lighting.cpp
-    
-    # Audio
     audio/AudioManager.cpp
     audio/Sound.cpp
-    
-    # Input
     input/InputManager.cpp
     input/TouchInput.cpp
     input/KeyboardInput.cpp
     input/GamepadInput.cpp
-    
-    # Physics
     physics/Collision.cpp
-    
-    # Components
     components/Transform.cpp
     components/Sprite.cpp
     components/Animator.cpp
@@ -40,21 +27,14 @@ add_library(FastEngine STATIC
     components/Collider.cpp
     components/AudioSource.cpp
     components/Text.cpp
-    
-    # Systems
     Systems/RenderSystem.cpp
     Systems/AnimationSystem.cpp
     Systems/PhysicsSystem.cpp
-    
-    # Resources
     resources/ResourceManager.cpp
-    
-    # Debug Tools
+    ui/ButtonManager.cpp
     debug/Console.cpp
     debug/Profiler.cpp
     debug/Wireframe.cpp
-    
-    # Editor Tools
     editor/BlueprintNode.cpp
     editor/BlueprintEditor.cpp
     editor/UIElement.cpp
@@ -62,27 +42,19 @@ add_library(FastEngine STATIC
     editor/AnimationEditor.cpp
     editor/MaterialEditor.cpp
     editor/ParticleEditor.cpp
-    
-    # AI Systems
     ai/NavMesh.cpp
     ai/Pathfinding.cpp
     ai/BehaviorTree.cpp
-    
-    # Cinematic
     cinematic/CinematicEditor.cpp
-    
-    # Network
     network/NetworkManager.cpp
-    
-    # Plugins
     plugins/PluginManager.cpp
-    
-    # Export
-    export/ProjectExporter.cpp
-    
-    # Profiling
     profiling/PerformanceProfiler.cpp
 )
+if(NOT BUILD_IOS)
+    list(APPEND FastEngine_SOURCES export/ProjectExporter.cpp)
+endif()
+
+add_library(FastEngine STATIC ${FastEngine_SOURCES})
 
 # Добавляем платформо-специфичные файлы
 if(BUILD_ANDROID)
@@ -94,7 +66,9 @@ if(BUILD_ANDROID)
         GLESv3
     )
 elseif(BUILD_IOS)
-    target_sources(FastEngine PRIVATE platform/Platform_iOS.cpp)
+    enable_language(OBJCXX)
+    set_source_files_properties(platform/Platform_iOS.mm PROPERTIES LANGUAGE OBJCXX)
+    target_sources(FastEngine PRIVATE platform/Platform_iOS.mm)
     target_link_libraries(FastEngine
         "-framework OpenGLES"
         "-framework AudioToolbox"

@@ -19,10 +19,11 @@ echo "Сборка для платформы: $PLATFORM"
 mkdir -p build/$PLATFORM
 cd build/$PLATFORM
 
-# Конфигурируем проект
+# Конфигурируем проект (симулятор отключён — в нём есть ошибки сборки)
 cmake ../.. \
     -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_DESKTOP=ON
+    -DBUILD_DESKTOP=ON \
+    -DBUILD_SIMULATOR=OFF
 
 # Собираем проект
 if [[ "$PLATFORM" == "windows" ]]; then

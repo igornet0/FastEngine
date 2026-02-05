@@ -1,7 +1,10 @@
 #include "FastEngine/Platform/Window.h"
-#include <SDL2/SDL.h>
 #include <iostream>
 
+#if defined(__APPLE__) && defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+/* iOS: Window implementation is in Platform_iOS.cpp (iOSWindow). Base class stubs only. */
+#else
+#include <SDL2/SDL.h>
 #ifdef __APPLE__
 #include <TargetConditionals.h>
 #if !TARGET_OS_IPHONE
@@ -9,6 +12,7 @@
 #endif
 #else
 #include <GL/gl.h>
+#endif
 #endif
 
 namespace FastEngine {
@@ -26,7 +30,22 @@ namespace FastEngine {
         Destroy();
     }
     
+#if defined(__APPLE__) && defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
     bool Window::Create(const WindowConfig& config) {
+        (void)config;
+        return false; /* iOS uses iOSWindow::Create */
+    }
+    void Window::Destroy() {}
+    void Window::Show() {}
+    void Window::Hide() {}
+    void Window::SetTitle(const std::string& title) { m_title = title; }
+    void Window::SetSize(int width, int height) { m_width = width; m_height = height; }
+    void Window::SetFullscreen(bool fullscreen) { m_fullscreen = fullscreen; }
+    void Window::SetVSync(bool enabled) { m_vsync = enabled; }
+    void Window::PollEvents() {}
+}
+#else
+    bool FastEngine::Window::Create(const WindowConfig& config) {
         if (m_created) {
             return true;
         }
@@ -98,7 +117,7 @@ namespace FastEngine {
         return true;
     }
     
-    void Window::Destroy() {
+    void FastEngine::Window::Destroy() {
         if (m_created && m_nativeWindow) {
             SDL_DestroyWindow(static_cast<SDL_Window*>(m_nativeWindow));
             SDL_Quit();
@@ -107,32 +126,32 @@ namespace FastEngine {
         m_nativeWindow = nullptr;
     }
     
-    void Window::Show() {
+    void FastEngine::Window::Show() {
         // Заглушка
     }
     
-    void Window::Hide() {
+    void FastEngine::Window::Hide() {
         // Заглушка
     }
     
-    void Window::SetTitle(const std::string& title) {
+    void FastEngine::Window::SetTitle(const std::string& title) {
         m_title = title;
     }
     
-    void Window::SetSize(int width, int height) {
+    void FastEngine::Window::SetSize(int width, int height) {
         m_width = width;
         m_height = height;
     }
     
-    void Window::SetFullscreen(bool fullscreen) {
+    void FastEngine::Window::SetFullscreen(bool fullscreen) {
         m_fullscreen = fullscreen;
     }
     
-    void Window::SetVSync(bool enabled) {
+    void FastEngine::Window::SetVSync(bool enabled) {
         m_vsync = enabled;
     }
     
-    void Window::PollEvents() {
+    void FastEngine::Window::PollEvents() {
         if (!m_created) return;
         
         SDL_Event event;
@@ -152,7 +171,33 @@ namespace FastEngine {
                         }
                     }
                     break;
+                case SDL_KEYDOWN:
+                    if (OnKeyDown) {
+                        OnKeyDown(static_cast<int>(event.key.keysym.scancode));
+                    }
+                    break;
+                case SDL_KEYUP:
+                    if (OnKeyUp) {
+                        OnKeyUp(static_cast<int>(event.key.keysym.scancode));
+                    }
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    if (OnMouseDown) {
+                        OnMouseDown(event.button.x, event.button.y, static_cast<int>(event.button.button));
+                    }
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if (OnMouseUp) {
+                        OnMouseUp(event.button.x, event.button.y, static_cast<int>(event.button.button));
+                    }
+                    break;
+                case SDL_MOUSEMOTION:
+                    if (OnMouseMove) {
+                        OnMouseMove(event.motion.x, event.motion.y);
+                    }
+                    break;
             }
         }
     }
-}
+} // namespace FastEngine
+#endif /* !iOS */

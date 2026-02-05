@@ -520,6 +520,10 @@ namespace FastEngine {
     std::string Platform::GetVersion() const {
         return "1.0.0";
     }
+    
+    void Platform::SetKeyCallbacks(std::function<void(int)> /* onKeyDown */, std::function<void(int)> /* onKeyUp */) {
+        // Android: ввод обрабатывается через touch / JNI
+    }
 }
 
 #endif // __ANDROID__

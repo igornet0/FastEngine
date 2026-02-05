@@ -3,9 +3,12 @@
 #include "FastEngine/Audio/Sound.h"
 #include "FastEngine/Render/Shader.h"
 #include "FastEngine/Platform/FileSystem.h"
+#if !(defined(__APPLE__) && defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE)
 #include <filesystem>
+#endif
 #include <algorithm>
 #include <chrono>
+#include <string>
 
 namespace FastEngine {
     ResourceManager& ResourceManager::GetInstance() {
@@ -415,8 +418,22 @@ namespace FastEngine {
     }
     
     std::string ResourceManager::GenerateResourceName(const std::string& path) const {
+#if defined(__APPLE__) && defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+        /* iOS 12: std::filesystem unavailable; use string ops for stem */
+        std::string name = path;
+        size_t slash = name.find_last_of('/');
+        if (slash != std::string::npos) {
+            name = name.substr(slash + 1);
+        }
+        size_t dot = name.find_last_of('.');
+        if (dot != std::string::npos) {
+            name = name.substr(0, dot);
+        }
+        return name;
+#else
         std::filesystem::path filePath(path);
         return filePath.stem().string();
+#endif
     }
     
     void ResourceManager::UpdateResourceAccess(const std::string& path) {
